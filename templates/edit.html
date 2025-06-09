@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block body %}
+<header><h1><a href="{{ url_for('index') }}">📝 Zonary</a></h1></header>
+<main>
+  <section class="edit-note">
+    <h2>Edit Note</h2>
+    <form action="{{ url_for('update_note', id=note.id) }}" method="post">
+      <input type="text" name="title" value="{{ note.title }}" required>
+      <textarea name="content" required>{{ note.content }}</textarea>
+      <button type="submit">💾 Save</button>
+    </form>
+    <section class="preview">
+      <h3>Preview</h3>
+      <div>{{ note.content | safe }}</div>
+    </section>
+  </section>
+</main>
+{% endblock %}

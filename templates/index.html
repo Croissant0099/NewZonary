@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% block body %}
+<header><h1><a href="{{ url_for('index') }}">📝 Zonary</a></h1></header>
+<main>
+  <div class="header-bar">
+    <div class="progress-widget">
+      <div class="progress-item">
+        <span>Year: {{ progress.year.passed }}/{{ progress.year.total }}</span>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: {{ (progress.year.passed / progress.year.total) * 100 }}%"></div>
+        </div>
+      </div>
+      <div class="progress-item">
+        <span>Month: {{ progress.month.passed }}/{{ progress.month.total }}</span>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: {{ (progress.month.passed / progress.month.total) * 100 }}%"></div>
+        </div>
+      </div>
+      <div class="progress-item">
+        <span>Week: {{ progress.week.passed }}/{{ progress.week.total }}</span>
+        <div class="progress-container">
+          <div class="progress-bar" style="width: {{ (progress.week.passed / progress.week.total) * 100 }}%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="weather-widget">
+      <div class="weather-card">
+        <div class="weather-header">
+          <h3>Weather</h3>
+          <form class="location-form" action="/set_location" method="POST">
+            <input type="text" name="location" placeholder="Change location..." value="{{ current_location }}">
+            <button type="submit">🔍</button>
+          </form>
+        </div>
+        <div class="weather-content">
+          <div class="weather-location">
+            <span class="location-icon">📍</span>
+            <span class="location-name">{{ weather.location }}</span>
+          </div>
+          <div class="weather-main">
+            <span class="weather-temp">{{ weather.temp }}°C</span>
+            <div class="weather-details">
+              <span class="weather-feels">Feels like {{ weather.feels_like }}°C</span>
+              <span class="weather-condition">{{ weather.condition }}</span>
+            </div>
+          </div>
+          <div class="weather-stats">
+            <span class="weather-humidity">💧 {{ weather.humidity }}%</span>
+            <span class="weather-wind">🌬️ {{ weather.wind }} m/s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-widget">
+      <div id="time"></div>
+      <div id="date"></div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="content-column">
+      <h2>Weekly Plan</h2>
+      <form class="add-form" action="/add_weekly" method="POST">
+        <select name="day" required>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
+          <option value="Saturday">Saturday</option>
+          <option value="Sunday">Sunday</option>
+        </select>
+        <input name="task" placeholder="Task" required>
+        <button type="submit">Add</button>
+      </form>
+
+      {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
+        <div class="plan-day-group">
+          <div class="day-header">{{ day }}</div>
+          <div class="tasks-list">
+            {% set tasks_found = [] %}
+            {% for task in weekly %}
+              {% if task.day == day %}
+                {% set _ = tasks_found.append(task) %}
+                <div class="task-item">
+                  <span>{{ task.task }}</span>
+                  <a href="/delete_weekly/{{ task.id }}" class="delete-btn">✕</a>
+                </div>
+              {% endif %}
+            {% endfor %}
+            {% if not tasks_found %}
+              <div class="no-task">No tasks</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="content-column">
+      <h2>To-Do List</h2>
+      <form class="add-form" action="/add_todo" method="POST">
+        <input name="task" placeholder="Task" required>
+        <select name="priority" required>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <button type="submit">Add</button>
+      </form>
+      <div class="todo-list">
+        {% for item in todos %}
+        <div class="todo-item {{ item.priority }}">
+          <span class="todo-priority">{{ item.priority|capitalize }}</span>
+          <span>{{ item.task }}</span>
+          <a href="/delete_todo/{{ item.id }}" class="delete-btn">✕</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="content-column">
+      <h2>Pomodoro Timer</h2>
+      <div class="pomodoro-container">
+        <div class="preset-buttons">
+          <button class="preset-btn" data-minutes="25">
+            <span class="emoji">🍅</span> Standard
+          </button>
+          <button class="preset-btn" data-minutes="15">
+            <span class="emoji">⚡</span> Short
+          </button>
+          <button class="preset-btn" data-minutes="50">
+            <span class="emoji">🧠</span> Deep Work
+          </button>
+        </div>
+
+        <div class="timer-display">
+          <div class="progress-ring">
+            <svg width="200" height="200">
+              <circle class="progress-ring__circle" stroke-width="8" fill="transparent" r="90" cx="100" cy="100"/>
+            </svg>
+          </div>
+          <div class="pomodoro-timer" id="pomodoro-timer">25:00</div>
+        </div>
+
+        <div class="pomodoro-controls">
+          <button class="pomodoro-btn" id="start-btn">
+            <span class="btn-icon">▶️</span> Start
+          </button>
+          <button class="pomodoro-btn" id="reset-btn">
+            <span class="btn-icon">🔄</span> Reset
+          </button>
+        </div>
+
+        <div class="timer-mode">
+          <span class="mode-icon">🎯</span>
+          <span id="current-mode">Focus Mode</span>
+        </div>
+
+        <div class="completion-message" id="completion-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <h2>My Calendar</h2>
+      <a href="https://calendar.google.com" target="_blank" class="calendar-link">Open in Calendar</a>
+    </div>
+    <iframe src="https://calendar.google.com/calendar/u/0/embed?height=600&wkst=1&bgcolor=%23121212&ctz=UTC&src=ZGF2aWQuci5tYXJyb25AZ21haWwuY29t&color=%23039BE5&src=ZGlhbmEuY2lyY2hldHRhQGdvb2dsZW1haWwuY29t&color=%23D81B60&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&mode=WEEK&hl=en"
+            class="calendar-iframe"
+            style="border:none; width: 50%; height: 500px; background-color: #2E2E2E; filter: invert(1) hue-rotate(180deg);"
+            frameborder="0"
+            scrolling="no">
+    </iframe>
+  </div>
+</main>
+
+<script>
+  function updateTime() {
+    const now = new Date();
+    document.getElementById("time").textContent = now.toLocaleTimeString();
+    document.getElementById("date").textContent = now.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+  setInterval(updateTime, 1000);
+  updateTime();
+
+  // Pomodoro Timer Variables
+  let timer;
+  let minutes = 25;
+  let seconds = 0;
+  let isRunning = false;
+  let currentMode = "Focus";
+  let totalSeconds = 25 * 60;
+  let remainingSeconds = totalSeconds;
+  const circle = document.querySelector('.progress-ring__circle');
+  const radius = circle.r.baseVal.value;
+  const circumference = radius * 2 * Math.PI;
+
+  // Set up the progress ring
+  circle.style.strokeDasharray = `${circumference} ${circumference}`;
+  circle.style.strokeDashoffset = circumference;
+
+  // Update timer display
+  function updatePomodoroDisplay() {
+    const display = document.getElementById('pomodoro-timer');
+    display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    // Update progress ring
+    remainingSeconds = (minutes * 60) + seconds;
+    const offset = circumference - (remainingSeconds / totalSeconds) * circumference;
+    circle.style.strokeDashoffset = offset;
+
+    // Color changes based on time remaining
+    if (minutes < 1) {
+      circle.style.stroke = 'var(--urgent)';
+      display.style.color = 'var(--urgent)';
+      display.style.textShadow = '0 0 15px rgba(255, 85, 85, 0.5)';
+    } else {
+      circle.style.stroke = 'var(--purple)';
+      display.style.color = 'var(--teal)';
+      display.style.textShadow = '0 0 15px rgba(3, 218, 198, 0.5)';
+    }
+  }
+
+  // Timer control functions
+  function startTimer() {
+    if (!isRunning) {
+      isRunning = true;
+      document.getElementById('start-btn').innerHTML = '<span class="btn-icon">⏸️</span> Pause';
+      document.querySelector('.timer-display').classList.add('timer-active');
+
+      timer = setInterval(() => {
+        if (seconds === 0) {
+          if (minutes === 0) {
+            timerComplete();
+            return;
+          }
+          minutes--;
+          seconds = 59;
+        } else {
+          seconds--;
+        }
+        updatePomodoroDisplay();
+      }, 1000);
+    } else {
+      pauseTimer();
+    }
+  }
+
+  function pauseTimer() {
+    clearInterval(timer);
+    isRunning = false;
+    document.getElementById('start-btn').innerHTML = '<span class="btn-icon">▶️</span> Start';
+    document.querySelector('.timer-display').classList.remove('timer-active');
+  }
+
+  function timerComplete() {
+    clearInterval(timer);
+    isRunning = false;
+    const completionMsg = document.getElementById('completion-message');
+    completionMsg.textContent = `${currentMode} session complete! 🎉`;
+    completionMsg.style.opacity = '1';
+
+    setTimeout(() => {
+      completionMsg.style.opacity = '0';
+    }, 3000);
+
+    document.getElementById('start-btn').innerHTML = '<span class="btn-icon">▶️</span> Start';
+    document.querySelector('.timer-display').classList.remove('timer-active');
+
+    // Play completion sound
+    const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3');
+    audio.play();
+  }
+
+  function resetTimer() {
+    pauseTimer();
+    minutes = totalSeconds / 60;
+    seconds = 0;
+    updatePomodoroDisplay();
+    document.getElementById('completion-message').style.opacity = '0';
+  }
+
+  // Event Listeners
+  document.getElementById('start-btn').addEventListener('click', startTimer);
+  document.getElementById('reset-btn').addEventListener('click', resetTimer);
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      minutes = parseInt(this.dataset.minutes);
+      totalSeconds = minutes * 60;
+      seconds = 0;
+      currentMode = this.textContent.split(' ')[1] || "Focus";
+      document.getElementById('current-mode').textContent = `${currentMode} Mode`;
+      resetTimer();
+    });
+  });
+
+  // Initialize
+  updatePomodoroDisplay();
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDarkMode = document.body.classList.contains('dark');
+
+    if (prefersDark || isDarkMode) {
+      if (!calendarIframe.src.includes('dark=1')) {
+        calendarIframe.src += '&dark=1';
+      }
+    }
+
+    const contentColumn = document.querySelector('.content-column');
+    if (contentColumn) {
+      const bgColor = getComputedStyle(contentColumn).backgroundColor;
+      calendarIframe.style.backgroundColor = bgColor;
+    }
+  });
+
+  document.querySelectorAll('.day-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const tasksList = header.nextElementSibling;
+      tasksList.style.display = tasksList.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+</script>
+{% endblock %}
