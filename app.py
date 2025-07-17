@@ -38,7 +38,7 @@ def get_weather():
         if not api_key:
             return {'temp': 'N/A', 'condition': 'API key missing', 'location': 'Unknown'}
 
-        location = session.get('location', 'Bruges')
+        location = session.get('location', 'Auckland')
         response = requests.get(
             f"http://api.openweathermap.org/data/2.5/weather?q={location}&units=metric&appid={api_key}"
         )
@@ -92,7 +92,7 @@ def index():
                          weekly=weekly,
                          todos=todos,
                          notes=notes,
-                         current_location=session.get('location', 'Bonn'))
+                         current_location=session.get('location', 'Auckland'))
 
 @app.route('/set_location', methods=['POST'])
 def set_location():
