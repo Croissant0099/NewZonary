@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from calendar import monthrange
 import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv('Weather_API_Key.env')
+load_dotenv('Wheather_API_Key.env')  # Fixed typo in filename to match your actual file
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notion.db'
@@ -15,18 +16,18 @@ db = SQLAlchemy(app)
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200))
-    content = db.Column(db.Text)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
 
 class WeeklyPlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    day = db.Column(db.String(20))
-    task = db.Column(db.String(200))
+    day = db.Column(db.String(20), nullable=False)
+    task = db.Column(db.String(200), nullable=False)
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    task = db.Column(db.String(200))
-    priority = db.Column(db.String(20))
+    task = db.Column(db.String(200), nullable=False)
+    priority = db.Column(db.String(20), nullable=False)
 
 with app.app_context():
     db.create_all()

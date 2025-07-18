@@ -79,7 +79,7 @@
       {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
         <div class="plan-day-group">
           <div class="day-header">{{ day }}</div>
-          <div class="tasks-list">
+          <div class="tasks-list" style="display: none;">
             {% set tasks_found = [] %}
             {% for task in weekly %}
               {% if task.day == day %}
@@ -164,13 +164,12 @@
     </div>
   </div>
 
-<div class="timetable-container">
-  <div class="timetable-header">
-    <h2>My Timetable</h2>
+  <div class="timetable-container">
+    <div class="timetable-header">
+      <h2>My Timetable</h2>
+    </div>
+    <img src="{{ url_for('static', filename='timetable.png') }}" alt="Timetable" class="timetable" />
   </div>
- <img src="{{ url_for('static', filename='timetable.png') }}" alt="Timetable" class="timetable" />
-</div>
-
 </main>
 
 <script>
@@ -293,7 +292,7 @@
       minutes = parseInt(this.dataset.minutes);
       totalSeconds = minutes * 60;
       seconds = 0;
-      currentMode = this.textContent.split(' ')[1] || "Focus";
+      currentMode = this.textContent.trim().split(' ')[1] || "Focus";
       document.getElementById('current-mode').textContent = `${currentMode} Mode`;
       resetTimer();
     });
@@ -306,11 +305,11 @@
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDarkMode = document.body.classList.contains('dark');
 
-
-  document.querySelectorAll('.day-header').forEach(header => {
-    header.addEventListener('click', () => {
-      const tasksList = header.nextElementSibling;
-      tasksList.style.display = tasksList.style.display === 'block' ? 'none' : 'block';
+    document.querySelectorAll('.day-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const tasksList = header.nextElementSibling;
+        tasksList.style.display = tasksList.style.display === 'block' ? 'none' : 'block';
+      });
     });
   });
 </script>
