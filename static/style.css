@@ -9,9 +9,6 @@
     --high: #ff8a65;
     --medium: #ffb74d;
     --low: #81c784;
-    --calendar-bg: #121212;
-    --calendar-text: #e0e0e0;
-    --calendar-border: #333;
 }
 
 body.dark {
@@ -434,39 +431,3 @@ button {
     padding: 6px 0;
 }
 
-.calendar-container {
-    background-color: var(--calendar-bg);
-    padding: var(--container-padding);
-    border-radius: var(--border-radius);
-    margin-top: var(--container-padding);
-    height: 600px;
-    border: 1px solid #333;
-    color: #fff;
-}
-
-.calendar-iframe {
-    width: 100%;
-    height: calc(100% - 40px);
-    border: none;
-    border-radius: var(--border-radius);
-    background-color: var(--calendar-bg);
-    color-scheme: dark;
-}
-
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--element-margin);
-    color: #fff;
-}
-
-.calendar-link {
-    color: var(--purple);
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-
-.calendar-link:hover {
-    text-decoration: underline;
-}

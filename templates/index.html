@@ -164,18 +164,13 @@
     </div>
   </div>
 
-  <div class="calendar-container">
-    <div class="calendar-header">
-      <h2>My Calendar</h2>
-      <a href="https://calendar.google.com" target="_blank" class="calendar-link">Open in Calendar</a>
-    </div>
-    <iframe src="https://calendar.google.com/calendar/u/0/embed?height=600&wkst=1&bgcolor=%23121212&ctz=UTC&src=ZGF2aWQuci5tYXJyb25AZ21haWwuY29t&color=%23039BE5&src=ZGlhbmEuY2lyY2hldHRhQGdvb2dsZW1haWwuY29t&color=%23D81B60&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&mode=WEEK&hl=en"
-            class="calendar-iframe"
-            style="border:none; width: 100%; height: 500px; background-color: #2E2E2E; filter: invert(1) hue-rotate(180deg);"
-            frameborder="0"
-            scrolling="no">
-    </iframe>
+<div class="timetable-container">
+  <div class="timetable-header">
+    <h2>My Timetable</h2>
   </div>
+ <img src="{{ url_for('static', filename='timetable.png') }}" alt="Timetable" class="timetable" />
+</div>
+
 </main>
 
 <script>
@@ -311,18 +306,6 @@
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const isDarkMode = document.body.classList.contains('dark');
 
-    if (prefersDark || isDarkMode) {
-      if (!calendarIframe.src.includes('dark=1')) {
-        calendarIframe.src += '&dark=1';
-      }
-    }
-
-    const contentColumn = document.querySelector('.content-column');
-    if (contentColumn) {
-      const bgColor = getComputedStyle(contentColumn).backgroundColor;
-      calendarIframe.style.backgroundColor = bgColor;
-    }
-  });
 
   document.querySelectorAll('.day-header').forEach(header => {
     header.addEventListener('click', () => {
