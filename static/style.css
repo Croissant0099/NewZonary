@@ -356,10 +356,6 @@ header a {
     100% { transform: scale(1); }
 }
 
-.timer-active {
-    animation: pulse 1.5s infinite;
-}
-
 /* Rest of your existing styles */
 .add-form {
     margin-bottom: var(--container-padding);
