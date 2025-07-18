@@ -6,7 +6,7 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv('Wheather_API_Key.env')  # Fixed typo in filename to match your actual file
+load_dotenv('Weather_API_Key.env')  # Fixed typo in filename to match your actual file
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///notion.db'
